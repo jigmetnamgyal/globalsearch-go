@@ -53,7 +53,15 @@ func GlobalSearch(c *gin.Context) {
 	data := make(map[string]interface{})
 
 	// this step de-serializes JSON data to our native Golang data
-	json.Unmarshal(body, &data)
+	jsonErr := json.Unmarshal(body, &data)
+
+	if jsonErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to unmarshal: " + jsonErr.Error(),
+		})
+
+		return
+	}
 
 	c.JSON(http.StatusOK, data)
 }
