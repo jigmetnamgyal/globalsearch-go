@@ -45,7 +45,16 @@ func GlobalSearch(c *gin.Context) {
 		return
 	}
 
-	defer response.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to close response body: " + err.Error(),
+			})
+
+			return
+		}
+	}(response.Body)
 
 	// now we need to read this to our native Golang type
 	// as the map data structure is close to JSON, we could use it
